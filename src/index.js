@@ -72,6 +72,7 @@ function displayRamenImage(ramen) {
     const newRamenImg = document.createElement("img");
     newRamenImg.src = ramen.image;
     newRamenImg.alt = ramen.name;
+    newRamenImg.id = "img" + ramen.id;
     // DELIVERABLE 2
     newRamenImg.addEventListener('click', () => {
         displayRamenDetails(ramen);
@@ -144,3 +145,15 @@ editRamen.addEventListener("submit", event => {
 });
 
 // DELIVERABLE 6
+const deleteButton = document.querySelector("#delete-button");
+deleteButton.addEventListener("click", () => {
+    
+    fetch(url + "/" + detailName.id, {
+        method: "DELETE"
+    })
+    .then(response => response.json())
+    .then(nothing => {
+        document.querySelector("#img" + detailName.id).remove();
+        displayRamenDetails(document.querySelector("#img1"));
+    });
+});
