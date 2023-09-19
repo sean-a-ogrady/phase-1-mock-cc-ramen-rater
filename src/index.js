@@ -25,24 +25,44 @@ handle the delete action). The ramen should be removed from the ramen-menu div, 
 be displayed in the ramen-detail div. No need to persist.
 */
 
-// DELIVERABLE 1
 
 const url = "http://localhost:3000/ramens"
+
+let idCount = 0;
 
 // Selectors
 const ramenMenu = document.querySelector("#ramen-menu");
 const detailImage = document.querySelector(".detail-image")
 const detailName = document.querySelector("h2.name");
 const detailRestaurant = document.querySelector("h3.restaurant");
+const ratingDisplay = document.querySelector("#rating-display");
+const commentDisplay = document.querySelector("#comment-display");
 
-// Form Selectors
+// Edit Ramen Form Selectors
+/*
+NOTE TO INSTRUCTOR
+------------------
+The id's for the code provided in the github repo for the edit ramen
+form were the same as the ids for the new ramen form. I've changed the
+ids in the edit-ramen form. This might be worth updating in the GitHub
+repo.
+
+new-rating => edit-rating
+new-comment => edit-coment
+*/
+const editRamen = document.querySelector("#edit-ramen");
+const editRating = document.querySelector("#edit-rating");
+const editComment = document.querySelector("#edit-comment");
+
+// New Ramen Form Selectors
 const newRamenForm = document.querySelector("#new-ramen");
 const newName = document.querySelector("#new-name");
-const newRestaurant = document.querySelector("new-restaurant");
+const newRestaurant = document.querySelector("#new-restaurant");
 const newImage = document.querySelector("#new-image");
 const newRating = document.querySelector("#new-rating");
-const newComment = document.querySelector("new-comment");
+const newComment = document.querySelector("#new-comment");
 
+// DELIVERABLE 1
 
 fetch(url)
 .then(response => response.json())
@@ -54,15 +74,73 @@ function displayRamenImage(ramen) {
     newRamenImg.alt = ramen.name;
     // DELIVERABLE 2
     newRamenImg.addEventListener('click', () => {
-        detailImage.src = ramen.image;
-        detailName.textContent = ramen.name;
-        detailRestaurant.textContent = ramen.restaurant;
-    })
+        displayRamenDetails(ramen);
+    });
+    // DELIVERABLE 4
+    if (idCount === 0) displayRamenDetails(ramen);
     ramenMenu.appendChild(newRamenImg);
+    idCount++;
+}
+
+function displayRamenDetails(ramen) {
+    detailImage.src = ramen.image;
+    detailName.textContent = ramen.name;
+    detailRestaurant.textContent = ramen.restaurant;
+    ratingDisplay.textContent = ramen.rating;
+    commentDisplay.textContent = ramen.comment;
+    detailName.id = ramen.id;
 }
 
 // DELIVERABLE 3
-newRamenForm.addEventListener("click", event => {
+newRamenForm.addEventListener("submit", event => {
     event.preventDefault();
-
+    fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-type": "application/json",
+            Accept: "application/json"
+        },
+        body: JSON.stringify({
+            id: ++idCount,
+            name: newName.value,
+            restaurant: newRestaurant.value,
+            image: newImage.value,
+            rating: newRating.value,
+            comment: newComment.value
+        })
+    })
+    .then(response => {
+        if (response.ok){
+            return response.json();
+        } else {
+            throw new Error("POST failed");
+        }
+    })
+    .then(postedRamen => displayRamenImage(postedRamen))
 });
+
+// DELIVERABLE 5
+editRamen.addEventListener("submit", event => {
+    event.preventDefault();
+    fetch(url + "/" + detailName.id, {
+        method: "PATCH",
+        headers: {
+            "Content-type": "application/json",
+            Accept: "application/json"
+        },
+        body: JSON.stringify({
+            comment: editComment.value,
+            rating: editRating.value
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error("PATCH failed");
+        }
+    })
+    .then(patchedRamen => displayRamenDetails(patchedRamen));
+});
+
+// DELIVERABLE 6
