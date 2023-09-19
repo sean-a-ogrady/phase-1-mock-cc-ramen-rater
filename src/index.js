@@ -154,6 +154,6 @@ deleteButton.addEventListener("click", () => {
     .then(response => response.json())
     .then(nothing => {
         document.querySelector("#img" + detailName.id).remove();
-        displayRamenDetails(document.querySelector("#img1"));
+        alert("Ramen Deleted. Click on another ramen.");
     });
 });
